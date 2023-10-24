@@ -1,16 +1,12 @@
-import React, { useState } from 'react';
 import {
   FlatList,
   Image,
   Text,
-  TouchableOpacity,
-  View,
   Modal,
-  Button,
-  StyleSheet,
-} from 'react-native';
-
-// Dummy Data (Array of Objects)
+} from "react-native";
+import React, { useState } from 'react';
+import { Button,NativeBaseProvider,Box } from "native-base";
+// Dummmy Data (Array of Object)
 const datas = [
   {
     id: 1,
@@ -78,76 +74,79 @@ const datas = [
     image:
       "https://ittelkom-sby.ac.id/wp-content/uploads/2022/09/DSC_1931-768x512.jpg",
   },
-
 ];
-
 const List = () => {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
-
-  const openModal = (item) => {
-    setSelectedItem(item);
-    setModalVisible(true);
-  };
-
-  const closeModal = () => {
-    setModalVisible(false);
-  };
-
+  const [modalVisible, setModalVisible] = useState({
+    isVisible: false,
+    itemTerpilih: null,
+  });
   const renderItem = ({ item }) => {
     return (
-      <TouchableOpacity style={styles.view} onPress={() => openModal(item)}>
-        <View>
-          <Image source={{ uri: item.image }} style={styles.image} />
-          <Text style={styles.text}>{item.title}</Text>
-        </View>
-      </TouchableOpacity>
+      <NativeBaseProvider>
+        <Button padding={15} backgroundColor={'white'} borderBottomColor={"#dddddd"} borderBottomWidth={1}  onPress={() => {
+        setModalVisible(
+          {
+            isVisible: true,
+            itemTerpilih: item,
+          }
+
+        );
+      }}
+      >
+        <Box >
+          <Image source={{ uri: item.image }} height={200} width={null} />
+          <Text fontSize={30} paddingTop={20}>{item.title}</Text>
+        </Box>
+      </Button>
+      </NativeBaseProvider>
+      
     );
   };
-
+  // MODAL
   return (
-    <View>
-      <FlatList data={datas} renderItem={renderItem} keyExtractor={(item) => item.id} />
+    <NativeBaseProvider>
+      <Box>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible.isVisible}
+        onRequestClose={() => {
+          Alert.alert('Modal has been closed.');
+          setModalVisible({
 
-      <Modal visible={modalVisible} animationType="fade">
-        <View style={styles.modalContainer}>
-        <Text style={styles.modalTitle}>{selectedItem ? selectedItem.title : ''}</Text>       
-          <Button title="Tutup" onPress={closeModal} />
-        </View>
+            isVisible: false,
+            itemTerpilih: null,
+          });
+        }}>
+        <Box flex={1} justifyItems={'center'} alignItems={'center'} marginTop={32}>
+          <Box margin={30} backgroundColor={'white'} borderRadius={20} padding={35} alignItems={'center'} shadowColor={'#000'} >
+            {modalVisible.itemTerpilih && (
+              <Box>
+                <Image source={{ uri: modalVisible.itemTerpilih.image }} height={200} width={null}/>
+                <Text fontSize={18} paddingTop={10}>{modalVisible.itemTerpilih.title}</Text>
+              </Box>
+            )}
+            <Button
+              borderRadius={5} padding={3} backgroundColor={'red.500'} 
+              onPress={() => {
+                setModalVisible({
+                  isVisible: false,
+                  itemTerpilih: null,
+                });
+              }}>
+             Close
+            </Button>
+          </Box>
+        </Box>
       </Modal>
-    </View>
+      <FlatList
+        data={datas}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+      />
+    </Box>
+    </NativeBaseProvider>
+    
   );
 };
-
-// Styles
-const styles = StyleSheet.create({
-  view: {
-    padding: 15,
-    borderBottomColor: '#dddddd',
-    borderBottomWidth: 1,
-  },
-  image: {
-    height: 200,
-    width: null,
-  },
-  text: {
-    fontSize: 18,
-    paddingTop: 10,
-  },
-  modalContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flex: 1,
-  },
-  modalTitle: {
-    textAlign: 'center',
-    fontSize: 24,
-    marginBottom: 30,
-  },
-  modalImage: {
-    height: 200,
-    width: null,
-  },
-});
-
 export default List;
